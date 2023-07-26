@@ -10,7 +10,10 @@ type Option = {
     from: HTMLElement,
     to: HTMLElement,
     position?: ShortInsertPosition,
-    duration: number
+    duration?: number,
+    fromClass?: string,
+    toClass?: string,
+    slideClass?: string
 }
 type Point = {
     x: number,
@@ -18,7 +21,11 @@ type Point = {
 }
 
 export default class ElemSmoothPlacer {
-    static #validation(func: FuncName, option: Option) {
+    static defaultOption = {
+        duration: 150
+    }
+
+    static #inputValidation(func: FuncName, option: Option) {
         const isFuncRangeValid = (['insert', 'swap'].includes(func))
         if (!isFuncRangeValid) {
             throw new RangeError('funcで使用可能な文字列は "insert", "swap" です。')
@@ -31,14 +38,35 @@ export default class ElemSmoothPlacer {
             }
         }
 
-        const isDurationRangeValid = (option.duration >= 0)
-        if (!isDurationRangeValid) {
-            throw new RangeError('option.durationの有効な範囲は 0以上の数値 です。')
+        if (option.duration != undefined) {
+            const isDurationRangeValid = (option.duration >= 0)
+            if (!isDurationRangeValid) {
+                throw new RangeError('option.durationの有効な範囲は 0以上の数値 です。')
+            }
+        }
+    }
+
+    static #sanitizing(func: FuncName, option: Option) {
+        if(option.duration == undefined) {
+            option.duration = ElemSmoothPlacer.defaultOption.duration
+        }
+
+        if (option.fromClass != undefined) {
+            option.fromClass = option.fromClass?.replace(/^\./, '')
+        }
+
+        if (option.toClass != undefined) {
+            option.toClass = option.toClass?.replace(/^\./, '')
+        }
+
+        if (option.slideClass != undefined) {
+            option.slideClass = option.slideClass?.replace(/^\./, '')
         }
     }
 
     static #transition(func: FuncName, option: Option) {
-        this.#validation(func, option)
+        this.#inputValidation(func, option)
+        this.#sanitizing(func, option)
 
         const prevElemParams: { elem: HTMLElement, position: Point }[] = (() => {
             let params: { elem: HTMLElement, position: Point }[] = []
@@ -130,6 +158,16 @@ export default class ElemSmoothPlacer {
         })()
 
         const startTransition = () => {
+            const addClass = () => {
+                if (option.fromClass != undefined) {
+                    option.from.classList.add(option.fromClass!)
+                }
+                if (option.toClass != undefined) {
+                    option.to.classList.add(option.toClass!)
+                }
+            }
+            addClass()
+
             let isFirst = true
             const f = () => {
                 if (isFirst) {
@@ -138,6 +176,9 @@ export default class ElemSmoothPlacer {
                         const startY = nextElemParam.prevPosition.y - nextElemParam.position.y
                         if (startX !== 0 || startY !== 0) {
                             nextElemParam.elem.style.transform = `translate(${startX}px, ${startY}px)`
+                            if (option.slideClass != undefined) {
+                                nextElemParam.elem.classList.add(option.slideClass!)
+                            }
                         }
                     })
                     isFirst = false
@@ -150,8 +191,29 @@ export default class ElemSmoothPlacer {
                         if (startX !== 0 || startY !== 0) {
                             nextElemParam.elem.style.transition = `transform ${option.duration}ms`
                             nextElemParam.elem.style.transform = `translate(0px, 0px)`
+                            nextElemParam.elem.addEventListener('transitionend', () => {
+                                nextElemParam.elem.style.transition = ''
+                                nextElemParam.elem.style.transform = ''
+                                if (option.slideClass != undefined) {
+                                    nextElemParam.elem.classList.remove(option.slideClass!)
+                                }
+                            }, { once: true })
                         }
                     })
+
+                    const removeClass = () => {
+                        if (option.fromClass != undefined) {
+                            option.from.addEventListener('transitionend', () => {
+                                option.from.classList.remove(option.fromClass!)
+                            }, { once: true })
+                        }
+                        if (option.toClass != undefined) {
+                            option.to.addEventListener('transitionend', () => {
+                                option.to.classList.remove(option.toClass!)
+                            }, { once: true })
+                        }
+                    }
+                    removeClass()
                 }
             }
             requestAnimationFrame(f)

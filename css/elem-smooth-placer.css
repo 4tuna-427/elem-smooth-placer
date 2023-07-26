@@ -1,0 +1,13 @@
+.placer-from {
+    position: relative;
+    z-index: 2;
+}
+
+.placer-to {
+    position: relative;
+    z-index: 1;
+}
+
+.placer-slide {
+    position: relative;
+}

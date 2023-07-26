@@ -7,18 +7,29 @@ newItem.innerText = 'added 1'
 const items = Array.from(<HTMLCollectionOf<HTMLElement>> document.getElementsByClassName('item'))
 
 ElemSmoothPlacer.swap({
-    from: items[3],
+    from: items[0],
     to: items[4],
-    duration: 2000
+    duration: 1000,
+    fromClass: 'placer-from',
+    toClass: '.placer-to',
+    slideClass: '.placer-slide',
 })
 setTimeout(() => {
     ElemSmoothPlacer.insert({
-        from: items[4],
-        to: items[2],
+        from: items[0],
+        to: items[1],
         position: 'before',
-        duration: 500
+        duration: 3000
     })
 }, 500)
+setTimeout(() => {
+    ElemSmoothPlacer.insert({
+        from: items[0],
+        to: items[5],
+        position: 'before',
+        duration: 3000
+    })
+}, 2000)
 
 const lists = Array.from(<HTMLCollectionOf<HTMLElement>> document.getElementsByClassName('list'))
 
