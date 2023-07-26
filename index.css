@@ -1,0 +1,29 @@
+html {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    padding: 1rem;
+}
+
+.list {
+    width: 150px;
+    padding: 2px;
+    border: 2px solid #aaa;
+}
+
+.list > * {
+    margin-bottom: 1px;
+}
+
+.item > *:last-child {
+    margin-bottom: 0;
+}
+
+.item {
+    padding: 0.5rem;
+    border: 1px solid #000;
+    box-sizing: border-box;
+}
