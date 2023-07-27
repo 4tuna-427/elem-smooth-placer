@@ -8,7 +8,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
-var _a, _ElemSmoothPlacer_inputValidation, _ElemSmoothPlacer_sanitizing, _ElemSmoothPlacer_transition;
+var _a, _ElemSmoothPlacer_transition;
 class ElemSmoothPlacer {
     static insert(option) {
         __classPrivateFieldGet(this, _a, "m", _ElemSmoothPlacer_transition).call(this, 'insert', option);
@@ -16,80 +16,98 @@ class ElemSmoothPlacer {
     static swap(option) {
         __classPrivateFieldGet(this, _a, "m", _ElemSmoothPlacer_transition).call(this, 'swap', option);
     }
+    static remove(option) {
+        __classPrivateFieldGet(this, _a, "m", _ElemSmoothPlacer_transition).call(this, 'remove', option);
+    }
 }
-_a = ElemSmoothPlacer, _ElemSmoothPlacer_inputValidation = function _ElemSmoothPlacer_inputValidation(func, option) {
-    const isFuncRangeValid = (['insert', 'swap'].includes(func));
-    if (!isFuncRangeValid) {
-        throw new RangeError('funcで使用可能な文字列は "insert", "swap" です。');
-    }
-    if (func === 'insert') {
-        const isPositionRangeValid = (['before', 'after', 'begin', 'end'].includes(option.position));
-        if (!isPositionRangeValid) {
-            throw new RangeError('option.positionで使用可能な文字列は "before", "after", "begin", "end" です。');
+_a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer_transition(func, option) {
+    const inputValidation = (func, option) => {
+        const isFuncRangeValid = (['insert', 'swap', 'remove'].includes(func));
+        if (!isFuncRangeValid) {
+            throw new RangeError('funcで使用可能な文字列は "insert", "swap", "remove" です。');
         }
-    }
-    if (option.duration != undefined) {
-        const isDurationRangeValid = (option.duration >= 0);
-        if (!isDurationRangeValid) {
-            throw new RangeError('option.durationの有効な範囲は 0以上の数値 です。');
+        if (func === 'remove') {
+            const isFromReferenceValid = (option.from.parentNode !== null);
+            if (!isFromReferenceValid) {
+                throw new ReferenceError('fromが存在しません。');
+            }
         }
-    }
-}, _ElemSmoothPlacer_sanitizing = function _ElemSmoothPlacer_sanitizing(func, option) {
-    if (option.duration == undefined) {
-        option.duration = ElemSmoothPlacer.defaultOption.duration;
-    }
-    if (option.fromClass != undefined) {
-        option.fromClass = option.fromClass?.replace(/^\./, '');
-    }
-    if (option.toClass != undefined) {
-        option.toClass = option.toClass?.replace(/^\./, '');
-    }
-    if (option.slideClass != undefined) {
-        option.slideClass = option.slideClass?.replace(/^\./, '');
-    }
-}, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer_transition(func, option) {
-    __classPrivateFieldGet(this, _a, "m", _ElemSmoothPlacer_inputValidation).call(this, func, option);
-    __classPrivateFieldGet(this, _a, "m", _ElemSmoothPlacer_sanitizing).call(this, func, option);
+        if (['insert', 'swap'].includes(func)) {
+            const isToReferenceValid = (option.to != undefined);
+            if (!isToReferenceValid) {
+                throw new ReferenceError('toが未定義です。');
+            }
+        }
+        if (func === 'insert') {
+            const isPositionRangeValid = (['before', 'after', 'begin', 'end'].includes(option.position));
+            if (!isPositionRangeValid) {
+                throw new RangeError('option.positionで使用可能な文字列は "before", "after", "begin", "end" です。');
+            }
+        }
+        if (option.duration != undefined) {
+            const isDurationRangeValid = (option.duration >= 0);
+            if (!isDurationRangeValid) {
+                throw new RangeError('option.durationの有効な範囲は 0以上の数値 です。');
+            }
+        }
+    };
+    inputValidation(func, option);
+    const sanitizing = (func, option) => {
+        if (option.duration == undefined) {
+            option.duration = ElemSmoothPlacer.defaultOption.duration;
+        }
+        if (option.fromClass != undefined) {
+            option.fromClass = option.fromClass?.replace(/^\./, '');
+        }
+        if (option.toClass != undefined) {
+            option.toClass = option.toClass?.replace(/^\./, '');
+        }
+        if (option.slideClass != undefined) {
+            option.slideClass = option.slideClass?.replace(/^\./, '');
+        }
+    };
+    sanitizing(func, option);
     const prevElemParams = (() => {
         let params = [];
         const displayedFrom = (option.from.parentNode !== null);
         if (displayedFrom) {
-            Array.from(option.from.parentNode.children).forEach(elem => {
+            const fromChildren = Array.from(option.from.parentNode.children);
+            fromChildren.forEach(elem => {
                 const rect = elem.getBoundingClientRect();
-                const param = {
+                params.push({
                     elem: elem,
                     position: {
                         x: rect.x,
                         y: rect.y
                     }
-                };
-                params.push(param);
+                });
             });
         }
-        const toChildren = (() => {
-            if (func === 'insert') {
-                if (['before', 'after'].includes(option.position)) {
-                    return option.to.parentNode.children;
+        if (['insert', 'swap'].includes(func)) {
+            const toChildren = (() => {
+                if (func === 'insert') {
+                    if (['before', 'after'].includes(option.position)) {
+                        return Array.from(option.to.parentNode.children);
+                    }
+                    else {
+                        return Array.from(option.to.children);
+                    }
                 }
-                else {
-                    return option.to.children;
+                else { // swap
+                    return Array.from(option.to.parentNode.children);
                 }
-            }
-            else {
-                return option.to.parentNode.children;
-            }
-        })();
-        Array.from(toChildren).forEach(elem => {
-            const rect = elem.getBoundingClientRect();
-            const param = {
-                elem: elem,
-                position: {
-                    x: rect.x,
-                    y: rect.y
-                }
-            };
-            params.push(param);
-        });
+            })();
+            toChildren.forEach(elem => {
+                const rect = elem.getBoundingClientRect();
+                params.push({
+                    elem: elem,
+                    position: {
+                        x: rect.x,
+                        y: rect.y
+                    }
+                });
+            });
+        }
         return params;
     })();
     const setPosition = () => {
@@ -104,24 +122,29 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_inputValidation = function _ElemSmoothP
             };
             option.to.insertAdjacentElement(sip2ip(option.position), option.from);
         }
-        else {
+        else if (func === 'swap') {
             const dummy = document.createElement('div');
             option.from.insertAdjacentElement('afterend', dummy);
             option.to.insertAdjacentElement('afterend', option.from);
             dummy.insertAdjacentElement('afterend', option.to);
             dummy.remove();
         }
-        option.from.style.transition = '';
-        option.from.style.transform = '';
-        option.to.style.transition = '';
-        option.to.style.transform = '';
+        else if (func === 'remove') {
+            option.from.remove();
+        }
+        if (['insert', 'swap'].includes(func)) {
+            option.from.style.transition = '';
+            option.from.style.transform = '';
+            option.to.style.transition = '';
+            option.to.style.transform = '';
+        }
     };
     setPosition();
     const nextElemParams = (() => {
         let params = [];
         prevElemParams.forEach(prevElemParam => {
             const rect = prevElemParam.elem.getBoundingClientRect();
-            const param = {
+            params.push({
                 elem: prevElemParam.elem,
                 prevPosition: {
                     x: prevElemParam.position.x,
@@ -131,21 +154,22 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_inputValidation = function _ElemSmoothP
                     x: rect.x,
                     y: rect.y
                 }
-            };
-            params.push(param);
+            });
         });
         return params;
     })();
     const startTransition = () => {
-        const addClass = () => {
-            if (option.fromClass != undefined) {
-                option.from.classList.add(option.fromClass);
-            }
-            if (option.toClass != undefined) {
-                option.to.classList.add(option.toClass);
-            }
-        };
-        addClass();
+        if (['insert', 'swap'].includes(func)) {
+            const addClass = () => {
+                if (option.fromClass != undefined) {
+                    option.from.classList.add(option.fromClass);
+                }
+                if (option.toClass != undefined) {
+                    option.to.classList.add(option.toClass);
+                }
+            };
+            addClass();
+        }
         let isFirst = true;
         const f = () => {
             if (isFirst) {
