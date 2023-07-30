@@ -213,7 +213,10 @@ export default class ElemSmoothPlacer {
                         const startY = param.prevPosition.y - param.position.y
                         if (startX !== 0 || startY !== 0) {
                             param.elem.style.transform = `translate(${startX}px, ${startY}px)`
-                            if (option.class != undefined){
+                            if (option.class != undefined) {
+                                if (option.class.all != undefined) {
+                                    addStackableClass(param.elem, option.class.all)
+                                }
                                 if (param.elem === option.from) {
                                     if (option.class.from != undefined) {
                                         addStackableClass(option.from, option.class.from)
@@ -241,7 +244,10 @@ export default class ElemSmoothPlacer {
                             param.elem.style.transition = `transform ${option.duration}ms`
                             param.elem.style.transform = `translate(0px, 0px)`
                             param.elem.addEventListener('transitioncancel', () => {
-                                if (option.class != undefined){
+                                if (option.class != undefined) {
+                                    if (option.class.all != undefined) {
+                                        removeStackableClass(param.elem, option.class.all)
+                                    }
                                     if (param.elem === option.from) {
                                         if (option.class.from != undefined) {
                                             removeStackableClass(option.from, option.class.from)
@@ -261,6 +267,9 @@ export default class ElemSmoothPlacer {
                                 param.elem.style.transition = ''
                                 param.elem.style.transform = ''
                                 if (option.class != undefined) {
+                                    if (option.class.all != undefined) {
+                                        removeStackableClass(param.elem, option.class.all)
+                                    }
                                     if (param.elem === option.from) {
                                         if (option.class.from != undefined) {
                                             removeStackableClass(option.from, option.class.from)

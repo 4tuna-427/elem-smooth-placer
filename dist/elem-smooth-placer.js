@@ -191,6 +191,9 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer
                     if (startX !== 0 || startY !== 0) {
                         param.elem.style.transform = `translate(${startX}px, ${startY}px)`;
                         if (option.class != undefined) {
+                            if (option.class.all != undefined) {
+                                addStackableClass(param.elem, option.class.all);
+                            }
                             if (param.elem === option.from) {
                                 if (option.class.from != undefined) {
                                     addStackableClass(option.from, option.class.from);
@@ -219,6 +222,9 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer
                         param.elem.style.transform = `translate(0px, 0px)`;
                         param.elem.addEventListener('transitioncancel', () => {
                             if (option.class != undefined) {
+                                if (option.class.all != undefined) {
+                                    removeStackableClass(param.elem, option.class.all);
+                                }
                                 if (param.elem === option.from) {
                                     if (option.class.from != undefined) {
                                         removeStackableClass(option.from, option.class.from);
@@ -238,6 +244,9 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer
                             param.elem.style.transition = '';
                             param.elem.style.transform = '';
                             if (option.class != undefined) {
+                                if (option.class.all != undefined) {
+                                    removeStackableClass(param.elem, option.class.all);
+                                }
                                 if (param.elem === option.from) {
                                     if (option.class.from != undefined) {
                                         removeStackableClass(option.from, option.class.from);

@@ -176,7 +176,56 @@ const removeTest = () => {
     }, 800)
 }
 
+// class test
+const classTest = () => {
+    ElemSmoothPlacer.insert({
+        from: newItem,
+        to: items[0],
+        position: 'before',
+        duration: 1000,
+        class: {
+            all: 'placer-all',
+            from: 'placer-from'
+        }
+    })
+    setTimeout(() => {
+        ElemSmoothPlacer.insert({
+            from: items[0],
+            to: items[3],
+            position: 'after',
+            duration: 1000,
+            class: {
+                all: 'placer-all',
+                from: 'placer-from'
+            }
+        })
+    }, 1000)
+    setTimeout(() => {
+        ElemSmoothPlacer.swap({
+            from: newItem,
+            to: items[5],
+            duration: 1000,
+            class: {
+                all: 'placer-all',
+                from: 'placer-from'
+            }
+        })
+    }, 1500)
+    setTimeout(() => {
+        ElemSmoothPlacer.swap({
+            from: items[2],
+            to: items[4],
+            duration: 1000,
+            class: {
+                all: 'placer-all',
+                from: 'placer-from'
+            }
+        })
+    }, 2000)
+}
+
 // insertTest()
-insertTest2()
+// insertTest2()
 // swapTest()
 // removeTest()
+classTest()
