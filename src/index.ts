@@ -24,27 +24,25 @@ const insertTest = () => {
             fromClass: 'placer-from',
             toClass: 'placer-to'
         })
-    }, 2000)
+    }, 1000)
     setTimeout(() => {
         ElemSmoothPlacer.insert({
             from: items[1],
             to: lists[1],
             position: 'begin',
             duration: 1000,
-            fromClass: 'placer-from',
-            toClass: 'placer-to'
+            fromClass: 'placer-from'
         })
-    }, 3000)
+    }, 2000)
     setTimeout(() => {
         ElemSmoothPlacer.insert({
             from: items[2],
             to: lists[1],
             position: 'end',
             duration: 1000,
-            fromClass: 'placer-from',
-            toClass: 'placer-to'
+            fromClass: 'placer-from'
         })
-    }, 4000)
+    }, 3000)
 }
 // insertTest()
 
@@ -53,18 +51,45 @@ const insertTest2 = () => {
         from: items[1],
         to: items[5],
         position: 'after',
-        duration: 1000
+        duration: 1000,
+        fromClass: 'placer-from',
+        toClass: 'placer-to',
+        slideClass: 'placer-slide'
     })
     setTimeout(() => {
         ElemSmoothPlacer.insert({
             from: items[2],
             to: items[1],
-            position: 'after',
-            duration: 1000
+            position: 'before',
+            duration: 1000,
+            fromClass: 'placer-from',
+            toClass: 'placer-to',
+            slideClass: 'placer-slide'
         })
     }, 500)
+    setTimeout(() => {
+        ElemSmoothPlacer.swap({
+            from: items[3],
+            to: items[4],
+            duration: 1000
+        })
+    }, 1000)
+    setTimeout(() => {
+        ElemSmoothPlacer.swap({
+            from: items[3],
+            to: items[4],
+            duration: 1000
+        })
+    }, 2000)
+    setTimeout(() => {
+        ElemSmoothPlacer.swap({
+            from: items[3],
+            to: items[4],
+            duration: 1000
+        })
+    }, 2500)
 }
-insertTest2()
+// insertTest2()
 
 // swap test
 const swapTest = () => {
@@ -100,14 +125,14 @@ const swapTest = () => {
 const removeTest = () => {
     ElemSmoothPlacer.remove({
         from: items[0],
-        duration: 2000
+        duration: 1000
     })
     setTimeout(() => {
         ElemSmoothPlacer.remove({
             from: items[2],
-            duration: 2000
+            duration: 1000
         })
-    }, 1800)
+    }, 800)
     // setTim
     // setTimeout(() => {
     //     ElemSmoothPlacer.remove({
@@ -116,4 +141,4 @@ const removeTest = () => {
     //     })
     // }, 2000)
 }
-// removeTest()
+removeTest()

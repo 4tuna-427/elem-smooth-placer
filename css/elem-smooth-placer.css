@@ -1,13 +1,16 @@
 .placer-from {
     position: relative;
     z-index: 2;
+    background-color: #f00;
 }
 
 .placer-to {
     position: relative;
     z-index: 1;
+    background-color: #0f0;
 }
 
 .placer-slide {
     position: relative;
+    background-color: #00f;
 }

@@ -21,52 +21,6 @@ class ElemSmoothPlacer {
     }
 }
 _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer_transition(func, option) {
-    const inputValidation = (func, option) => {
-        const isFuncRangeValid = (['insert', 'swap', 'remove'].includes(func));
-        if (!isFuncRangeValid) {
-            throw new RangeError('funcで使用可能な文字列は "insert", "swap", "remove" です。');
-        }
-        if (func === 'remove') {
-            const isFromReferenceValid = (option.from.parentNode !== null);
-            if (!isFromReferenceValid) {
-                throw new ReferenceError('fromが存在しません。');
-            }
-        }
-        if (['insert', 'swap'].includes(func)) {
-            const isToReferenceValid = (option.to != undefined);
-            if (!isToReferenceValid) {
-                throw new ReferenceError('toが未定義です。');
-            }
-        }
-        if (func === 'insert') {
-            const isPositionRangeValid = (['before', 'after', 'begin', 'end'].includes(option.position));
-            if (!isPositionRangeValid) {
-                throw new RangeError('option.positionで使用可能な文字列は "before", "after", "begin", "end" です。');
-            }
-        }
-        if (option.duration != undefined) {
-            const isDurationRangeValid = (option.duration >= 0);
-            if (!isDurationRangeValid) {
-                throw new RangeError('option.durationの有効な範囲は 0以上の数値 です。');
-            }
-        }
-    };
-    inputValidation(func, option);
-    const sanitizing = (func, option) => {
-        if (option.duration == undefined) {
-            option.duration = ElemSmoothPlacer.defaultOption.duration;
-        }
-        if (option.fromClass != undefined) {
-            option.fromClass = option.fromClass?.replace(/^\./, '');
-        }
-        if (option.toClass != undefined) {
-            option.toClass = option.toClass?.replace(/^\./, '');
-        }
-        if (option.slideClass != undefined) {
-            option.slideClass = option.slideClass?.replace(/^\./, '');
-        }
-    };
-    sanitizing(func, option);
     const prevElemParams = (() => {
         let params = [];
         const displayedFrom = (option.from.parentNode !== null);
@@ -85,17 +39,19 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer
         }
         if (['insert', 'swap'].includes(func)) {
             const toChildren = (() => {
+                let children = [];
                 if (func === 'insert') {
                     if (['before', 'after'].includes(option.position)) {
-                        return Array.from(option.to.parentNode.children);
+                        children = Array.from(option.to.parentNode.children);
                     }
-                    else {
-                        return Array.from(option.to.children);
+                    else if (['begin', 'end'].includes(option.position)) {
+                        children = Array.from(option.to.children);
                     }
                 }
-                else { // swap
-                    return Array.from(option.to.parentNode.children);
+                else if (func === 'swap') {
+                    children = Array.from(option.to.parentNode.children);
                 }
+                return children;
             })();
             toChildren.forEach(elem => {
                 const rect = elem.getBoundingClientRect();
@@ -132,12 +88,10 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer
         else if (func === 'remove') {
             option.from.remove();
         }
-        if (['insert', 'swap'].includes(func)) {
-            option.from.style.transition = '';
-            option.from.style.transform = '';
-            option.to.style.transition = '';
-            option.to.style.transform = '';
-        }
+        prevElemParams.forEach(param => {
+            param.elem.style.transition = '';
+            param.elem.style.transform = '';
+        });
     };
     setPosition();
     const nextElemParams = (() => {
@@ -160,26 +114,23 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer
     })();
     const startTransition = () => {
         if (['insert', 'swap'].includes(func)) {
-            const addClass = () => {
-                if (option.fromClass != undefined) {
-                    option.from.classList.add(option.fromClass);
-                }
-                if (option.toClass != undefined) {
-                    option.to.classList.add(option.toClass);
-                }
-            };
-            addClass();
+            if (option.fromClass != undefined) {
+                option.from.classList.add(option.fromClass);
+            }
+            if (option.toClass != undefined) {
+                option.to.classList.add(option.toClass);
+            }
         }
         let isFirst = true;
         const f = () => {
             if (isFirst) {
-                nextElemParams.forEach(nextElemParam => {
-                    const startX = nextElemParam.prevPosition.x - nextElemParam.position.x;
-                    const startY = nextElemParam.prevPosition.y - nextElemParam.position.y;
+                nextElemParams.forEach(param => {
+                    const startX = param.prevPosition.x - param.position.x;
+                    const startY = param.prevPosition.y - param.position.y;
                     if (startX !== 0 || startY !== 0) {
-                        nextElemParam.elem.style.transform = `translate(${startX}px, ${startY}px)`;
+                        param.elem.style.transform = `translate(${startX}px, ${startY}px)`;
                         if (option.slideClass != undefined) {
-                            nextElemParam.elem.classList.add(option.slideClass);
+                            param.elem.classList.add(option.slideClass);
                         }
                     }
                 });
@@ -187,40 +138,44 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer
                 requestAnimationFrame(f);
             }
             else {
-                nextElemParams.forEach(nextElemParam => {
-                    const startX = nextElemParam.prevPosition.x - nextElemParam.position.x;
-                    const startY = nextElemParam.prevPosition.y - nextElemParam.position.y;
+                nextElemParams.forEach(param => {
+                    const startX = param.prevPosition.x - param.position.x;
+                    const startY = param.prevPosition.y - param.position.y;
                     if (startX !== 0 || startY !== 0) {
-                        nextElemParam.elem.style.transition = `transform ${option.duration}ms`;
-                        nextElemParam.elem.style.transform = `translate(0px, 0px)`;
-                        nextElemParam.elem.addEventListener('transitionend', () => {
-                            nextElemParam.elem.style.transition = '';
-                            nextElemParam.elem.style.transform = '';
+                        param.elem.style.transition = `transform ${option.duration}ms`;
+                        param.elem.style.transform = `translate(0px, 0px)`;
+                        param.elem.addEventListener('transitionend', () => {
+                            param.elem.style.transition = '';
+                            param.elem.style.transform = '';
                             if (option.slideClass != undefined) {
-                                nextElemParam.elem.classList.remove(option.slideClass);
+                                param.elem.classList.remove(option.slideClass);
                             }
                         }, { once: true });
                     }
                 });
-                const removeClass = () => {
-                    if (option.fromClass != undefined) {
-                        option.from.addEventListener('transitionend', () => {
-                            option.from.classList.remove(option.fromClass);
-                        }, { once: true });
-                    }
-                    if (option.toClass != undefined) {
-                        option.to.addEventListener('transitionend', () => {
-                            option.to.classList.remove(option.toClass);
-                        }, { once: true });
-                    }
-                };
-                removeClass();
+                if (option.fromClass != undefined) {
+                    option.from.addEventListener('transitioncancel', () => {
+                        option.from.classList.remove(option.fromClass);
+                    }, { once: true });
+                    option.from.addEventListener('transitionend', () => {
+                        option.from.classList.remove(option.fromClass);
+                    }, { once: true });
+                }
+                if (option.toClass != undefined) {
+                    option.to.addEventListener('transitioncancel', () => {
+                        option.to.classList.remove(option.toClass);
+                    }, { once: true });
+                    option.to.addEventListener('transitionend', () => {
+                        option.to.classList.remove(option.toClass);
+                    }, { once: true });
+                }
             }
         };
         requestAnimationFrame(f);
     };
     startTransition();
 };
+ElemSmoothPlacer.transitioningClass = 'placer-transitioning';
 ElemSmoothPlacer.defaultOption = {
     duration: 150
 };
