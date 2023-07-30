@@ -158,13 +158,31 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer
         });
         return params;
     })();
+    const addStackableClass = (elem, className) => {
+        const count = parseInt(elem.getAttribute(ElemSmoothPlacer.STACKABLE_CLASS_PREFIX + className) ?? '0') + 1;
+        elem.setAttribute(ElemSmoothPlacer.STACKABLE_CLASS_PREFIX + className, '' + count);
+        elem.classList.add(className);
+    };
+    const removeStackableClass = (elem, className) => {
+        const attr = elem.getAttribute(ElemSmoothPlacer.STACKABLE_CLASS_PREFIX + className);
+        if (attr === null)
+            return;
+        const count = parseInt(attr ?? '0') - 1;
+        if (count == 0) {
+            elem.removeAttribute(ElemSmoothPlacer.STACKABLE_CLASS_PREFIX + className);
+            elem.classList.remove(className);
+        }
+        else {
+            elem.setAttribute(ElemSmoothPlacer.STACKABLE_CLASS_PREFIX + className, '' + count);
+        }
+    };
     const startTransition = () => {
         if (['insert', 'swap'].includes(func)) {
             if (option.fromClass != undefined) {
-                option.from.classList.add(option.fromClass);
+                addStackableClass(option.from, option.fromClass);
             }
             if (option.toClass != undefined) {
-                option.to.classList.add(option.toClass);
+                addStackableClass(option.to, option.toClass);
             }
         }
         let isFirst = true;
@@ -176,7 +194,7 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer
                     if (startX !== 0 || startY !== 0) {
                         param.elem.style.transform = `translate(${startX}px, ${startY}px)`;
                         if (option.slideClass != undefined) {
-                            param.elem.classList.add(option.slideClass);
+                            addStackableClass(param.elem, option.slideClass);
                         }
                     }
                 });
@@ -193,35 +211,39 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer
                         param.elem.addEventListener('transitionend', () => {
                             param.elem.style.transition = '';
                             param.elem.style.transform = '';
-                            if (option.slideClass != undefined) {
-                                param.elem.classList.remove(option.slideClass);
-                            }
                         }, { once: true });
                     }
                 });
-                if (option.fromClass != undefined) {
-                    option.from.addEventListener('transitioncancel', () => {
-                        option.from.classList.remove(option.fromClass);
-                    }, { once: true });
-                    option.from.addEventListener('transitionend', () => {
-                        option.from.classList.remove(option.fromClass);
-                    }, { once: true });
-                }
-                if (option.toClass != undefined) {
-                    option.to.addEventListener('transitioncancel', () => {
-                        option.to.classList.remove(option.toClass);
-                    }, { once: true });
-                    option.to.addEventListener('transitionend', () => {
-                        option.to.classList.remove(option.toClass);
-                    }, { once: true });
-                }
             }
         };
         requestAnimationFrame(f);
     };
     startTransition();
+    const observeTransition = () => {
+        let startTime = 0;
+        const f = (timestamp) => {
+            if (startTime === 0)
+                startTime = timestamp;
+            const elapsed = timestamp - startTime;
+            if (elapsed >= option.duration) {
+                if (option.fromClass != undefined) {
+                    removeStackableClass(option.from, option.fromClass);
+                }
+                if (option.toClass != undefined) {
+                    removeStackableClass(option.to, option.toClass);
+                }
+                nextElemParams.forEach(param => {
+                    removeStackableClass(param.elem, option.slideClass);
+                });
+                return;
+            }
+            requestAnimationFrame(f);
+        };
+        requestAnimationFrame(f);
+    };
+    observeTransition();
 };
-ElemSmoothPlacer.transitioningClass = 'placer-transitioning';
+ElemSmoothPlacer.STACKABLE_CLASS_PREFIX = 'stackable_class-';
 ElemSmoothPlacer.defaultOption = {
     duration: 150
 };
