@@ -98,7 +98,8 @@ const swapTest = () => {
         to: items[4],
         duration: 1000,
         fromClass: 'placer-from',
-        toClass: '.placer-to'
+        toClass: 'placer-to',
+        slideClass: 'placer-slide'
     })
     setTimeout(() => {
         ElemSmoothPlacer.swap({
@@ -106,7 +107,8 @@ const swapTest = () => {
             to: items[5],
             duration: 1000,
             fromClass: 'placer-from',
-            toClass: '.placer-to'
+            toClass: 'placer-to',
+            slideClass: 'placer-slide'
         })
     }, 1000)
     setTimeout(() => {
@@ -115,30 +117,30 @@ const swapTest = () => {
             to: items[4],
             duration: 1000,
             fromClass: 'placer-from',
-            toClass: '.placer-to'
+            toClass: 'placer-to',
+            slideClass: 'placer-slide'
         })
     }, 2000)
 }
-// swapTest()
+swapTest()
 
 // remove test
 const removeTest = () => {
     ElemSmoothPlacer.remove({
         from: items[0],
-        duration: 1000
+        duration: 1000,
+        fromClass: 'placer-from',
+        toClass: 'placer-to',
+        slideClass: 'placer-slide'
     })
     setTimeout(() => {
         ElemSmoothPlacer.remove({
             from: items[2],
-            duration: 1000
+            duration: 1000,
+            fromClass: 'placer-from',
+            toClass: 'placer-to',
+            slideClass: 'placer-slide'
         })
     }, 800)
-    // setTim
-    // setTimeout(() => {
-    //     ElemSmoothPlacer.remove({
-    //         from: items[3],
-    //         duration: 1000
-    //     })
-    // }, 2000)
 }
-removeTest()
+// removeTest()

@@ -21,6 +21,52 @@ class ElemSmoothPlacer {
     }
 }
 _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer_transition(func, option) {
+    const inputValidation = (func, option) => {
+        const isFuncRangeValid = (['insert', 'swap', 'remove'].includes(func));
+        if (!isFuncRangeValid) {
+            throw new RangeError('funcで使用可能な文字列は "insert", "swap", "remove" です。');
+        }
+        if (func === 'remove') {
+            const isFromReferenceValid = (option.from.parentNode !== null);
+            if (!isFromReferenceValid) {
+                throw new ReferenceError('fromが存在しません。');
+            }
+        }
+        if (['insert', 'swap'].includes(func)) {
+            const isToReferenceValid = (option.to != undefined);
+            if (!isToReferenceValid) {
+                throw new ReferenceError('toが未定義です。');
+            }
+        }
+        if (func === 'insert') {
+            const isPositionRangeValid = (['before', 'after', 'begin', 'end'].includes(option.position));
+            if (!isPositionRangeValid) {
+                throw new RangeError('option.positionで使用可能な文字列は "before", "after", "begin", "end" です。');
+            }
+        }
+        if (option.duration != undefined) {
+            const isDurationRangeValid = (option.duration >= 0);
+            if (!isDurationRangeValid) {
+                throw new RangeError('option.durationの有効な範囲は 0以上の数値 です。');
+            }
+        }
+    };
+    inputValidation(func, option);
+    const sanitizing = (func, option) => {
+        if (option.duration == undefined) {
+            option.duration = ElemSmoothPlacer.defaultOption.duration;
+        }
+        if (option.fromClass != undefined) {
+            option.fromClass = option.fromClass?.replace(/^\./, '');
+        }
+        if (option.toClass != undefined) {
+            option.toClass = option.toClass?.replace(/^\./, '');
+        }
+        if (option.slideClass != undefined) {
+            option.slideClass = option.slideClass?.replace(/^\./, '');
+        }
+    };
+    sanitizing(func, option);
     const prevElemParams = (() => {
         let params = [];
         const displayedFrom = (option.from.parentNode !== null);
