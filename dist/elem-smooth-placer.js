@@ -56,14 +56,19 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer
         if (option.duration == undefined) {
             option.duration = ElemSmoothPlacer.defaultOption.duration;
         }
-        if (option.fromClass != undefined) {
-            option.fromClass = option.fromClass?.replace(/^\./, '');
-        }
-        if (option.toClass != undefined) {
-            option.toClass = option.toClass?.replace(/^\./, '');
-        }
-        if (option.slideClass != undefined) {
-            option.slideClass = option.slideClass?.replace(/^\./, '');
+        if (option.class != undefined) {
+            if (option.class.all != undefined) {
+                option.class.all = option.class.all.replace(/^\./, '');
+            }
+            if (option.class.from != undefined) {
+                option.class.from = option.class.from.replace(/^\./, '');
+            }
+            if (option.class.to != undefined) {
+                option.class.to = option.class.to.replace(/^\./, '');
+            }
+            if (option.class.slide != undefined) {
+                option.class.slide = option.class.slide.replace(/^\./, '');
+            }
         }
     };
     sanitizing(func, option);
@@ -185,18 +190,20 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer
                     const startY = param.prevPosition.y - param.position.y;
                     if (startX !== 0 || startY !== 0) {
                         param.elem.style.transform = `translate(${startX}px, ${startY}px)`;
-                        if (param.elem === option.from) {
-                            if (option.fromClass != undefined) {
-                                addStackableClass(option.from, option.fromClass);
+                        if (option.class != undefined) {
+                            if (param.elem === option.from) {
+                                if (option.class.from != undefined) {
+                                    addStackableClass(option.from, option.class.from);
+                                }
                             }
-                        }
-                        else if (param.elem === option.to) {
-                            if (option.toClass != undefined) {
-                                addStackableClass(option.to, option.toClass);
+                            else if (param.elem === option.to) {
+                                if (option.class.to != undefined) {
+                                    addStackableClass(option.to, option.class.to);
+                                }
                             }
-                        }
-                        else if (option.slideClass != undefined) {
-                            addStackableClass(param.elem, option.slideClass);
+                            else if (option.class.slide != undefined) {
+                                addStackableClass(param.elem, option.class.slide);
+                            }
                         }
                     }
                 });
@@ -211,35 +218,39 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer
                         param.elem.style.transition = `transform ${option.duration}ms`;
                         param.elem.style.transform = `translate(0px, 0px)`;
                         param.elem.addEventListener('transitioncancel', () => {
-                            if (param.elem === option.from) {
-                                if (option.fromClass != undefined) {
-                                    removeStackableClass(option.from, option.fromClass);
+                            if (option.class != undefined) {
+                                if (param.elem === option.from) {
+                                    if (option.class.from != undefined) {
+                                        removeStackableClass(option.from, option.class.from);
+                                    }
                                 }
-                            }
-                            else if (param.elem === option.to) {
-                                if (option.toClass != undefined) {
-                                    removeStackableClass(option.to, option.toClass);
+                                else if (param.elem === option.to) {
+                                    if (option.class.to != undefined) {
+                                        removeStackableClass(option.to, option.class.to);
+                                    }
                                 }
-                            }
-                            else if (option.slideClass != undefined) {
-                                removeStackableClass(param.elem, option.slideClass);
+                                else if (option.class.slide != undefined) {
+                                    removeStackableClass(param.elem, option.class.slide);
+                                }
                             }
                         }, { once: true });
                         param.elem.addEventListener('transitionend', () => {
                             param.elem.style.transition = '';
                             param.elem.style.transform = '';
-                            if (param.elem === option.from) {
-                                if (option.fromClass != undefined) {
-                                    removeStackableClass(option.from, option.fromClass);
+                            if (option.class != undefined) {
+                                if (param.elem === option.from) {
+                                    if (option.class.from != undefined) {
+                                        removeStackableClass(option.from, option.class.from);
+                                    }
                                 }
-                            }
-                            else if (param.elem === option.to) {
-                                if (option.toClass != undefined) {
-                                    removeStackableClass(option.to, option.toClass);
+                                else if (param.elem === option.to) {
+                                    if (option.class.to != undefined) {
+                                        removeStackableClass(option.to, option.class.to);
+                                    }
                                 }
-                            }
-                            else if (option.slideClass != undefined) {
-                                removeStackableClass(param.elem, option.slideClass);
+                                else if (option.class.slide != undefined) {
+                                    removeStackableClass(param.elem, option.class.slide);
+                                }
                             }
                         }, { once: true });
                     }
