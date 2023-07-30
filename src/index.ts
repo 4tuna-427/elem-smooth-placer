@@ -44,7 +44,7 @@ const insertTest = () => {
         })
     }, 3000)
 }
-insertTest()
+// insertTest()
 
 const insertTest2 = () => {
     ElemSmoothPlacer.insert({
@@ -71,21 +71,30 @@ const insertTest2 = () => {
         ElemSmoothPlacer.swap({
             from: items[3],
             to: items[4],
-            duration: 1000
+            duration: 1000,
+            fromClass: 'placer-from',
+            toClass: 'placer-to',
+            slideClass: 'placer-slide'
         })
     }, 1000)
     setTimeout(() => {
         ElemSmoothPlacer.swap({
             from: items[3],
             to: items[4],
-            duration: 1000
+            duration: 1000,
+            fromClass: 'placer-from',
+            toClass: 'placer-to',
+            slideClass: 'placer-slide'
         })
     }, 2000)
     setTimeout(() => {
         ElemSmoothPlacer.swap({
             from: items[3],
             to: items[4],
-            duration: 1000
+            duration: 1000,
+            fromClass: 'placer-from',
+            toClass: 'placer-to',
+            slideClass: 'placer-slide'
         })
     }, 2500)
 }

@@ -177,14 +177,6 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer
         }
     };
     const startTransition = () => {
-        if (['insert', 'swap'].includes(func)) {
-            if (option.fromClass != undefined) {
-                addStackableClass(option.from, option.fromClass);
-            }
-            if (option.toClass != undefined) {
-                addStackableClass(option.to, option.toClass);
-            }
-        }
         let isFirst = true;
         const f = () => {
             if (isFirst) {
@@ -193,7 +185,17 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer
                     const startY = param.prevPosition.y - param.position.y;
                     if (startX !== 0 || startY !== 0) {
                         param.elem.style.transform = `translate(${startX}px, ${startY}px)`;
-                        if (option.slideClass != undefined) {
+                        if (param.elem === option.from) {
+                            if (option.fromClass != undefined) {
+                                addStackableClass(option.from, option.fromClass);
+                            }
+                        }
+                        else if (param.elem === option.to) {
+                            if (option.toClass != undefined) {
+                                addStackableClass(option.to, option.toClass);
+                            }
+                        }
+                        else if (option.slideClass != undefined) {
                             addStackableClass(param.elem, option.slideClass);
                         }
                     }
@@ -208,9 +210,37 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer
                     if (startX !== 0 || startY !== 0) {
                         param.elem.style.transition = `transform ${option.duration}ms`;
                         param.elem.style.transform = `translate(0px, 0px)`;
+                        param.elem.addEventListener('transitioncancel', () => {
+                            if (param.elem === option.from) {
+                                if (option.fromClass != undefined) {
+                                    removeStackableClass(option.from, option.fromClass);
+                                }
+                            }
+                            else if (param.elem === option.to) {
+                                if (option.toClass != undefined) {
+                                    removeStackableClass(option.to, option.toClass);
+                                }
+                            }
+                            else if (option.slideClass != undefined) {
+                                removeStackableClass(param.elem, option.slideClass);
+                            }
+                        }, { once: true });
                         param.elem.addEventListener('transitionend', () => {
                             param.elem.style.transition = '';
                             param.elem.style.transform = '';
+                            if (param.elem === option.from) {
+                                if (option.fromClass != undefined) {
+                                    removeStackableClass(option.from, option.fromClass);
+                                }
+                            }
+                            else if (param.elem === option.to) {
+                                if (option.toClass != undefined) {
+                                    removeStackableClass(option.to, option.toClass);
+                                }
+                            }
+                            else if (option.slideClass != undefined) {
+                                removeStackableClass(param.elem, option.slideClass);
+                            }
                         }, { once: true });
                     }
                 });
@@ -219,29 +249,6 @@ _a = ElemSmoothPlacer, _ElemSmoothPlacer_transition = function _ElemSmoothPlacer
         requestAnimationFrame(f);
     };
     startTransition();
-    const observeTransition = () => {
-        let startTime = 0;
-        const f = (timestamp) => {
-            if (startTime === 0)
-                startTime = timestamp;
-            const elapsed = timestamp - startTime;
-            if (elapsed >= option.duration) {
-                if (option.fromClass != undefined) {
-                    removeStackableClass(option.from, option.fromClass);
-                }
-                if (option.toClass != undefined) {
-                    removeStackableClass(option.to, option.toClass);
-                }
-                nextElemParams.forEach(param => {
-                    removeStackableClass(param.elem, option.slideClass);
-                });
-                return;
-            }
-            requestAnimationFrame(f);
-        };
-        requestAnimationFrame(f);
-    };
-    observeTransition();
 };
 ElemSmoothPlacer.STACKABLE_CLASS_PREFIX = 'stackable_class-';
 ElemSmoothPlacer.defaultOption = {
